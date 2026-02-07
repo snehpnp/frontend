@@ -1,10 +1,14 @@
+// components/home/CategorySection.tsx
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import CategoryCard from "../cards/CategoryCard";
+import { coursesData } from "@/src/data/courses";
+import { categories } from "@/src/types/course";
 
 export default function CategorySection() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -16,23 +20,53 @@ export default function CategorySection() {
     }
   };
 
+  const filteredCourses =
+    selectedCategory === "All"
+      ? coursesData
+      : coursesData.filter((course) => course.category === selectedCategory);
+
   return (
-    <section id="categories" className="bg-white px-6 py-24 text-slate-900">
-      {/* Single Row Layout: 30% Heading + 70% Scrollable Cards */}
+    <section id="categories" className="bg-white px-4 py-12 text-slate-900 sm:px-6 sm:py-16 lg:py-24">
       <div className="mx-auto max-w-[1400px]">
-        <div className="flex items-center gap-8">
-          {/* Heading Section - 30% */}
-          <div className="w-[30%] flex-shrink-0">
-            <h2 className="text-4xl font-bold leading-tight">
+        {/* Category Filter Tabs */}
+        <div className="mb-6 overflow-x-auto sm:mb-8">
+          <div className="flex gap-2 pb-4 sm:gap-3">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition sm:px-6 sm:text-sm ${
+                  selectedCategory === category
+                    ? "bg-purple-700 text-white shadow-md"
+                    : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Responsive Layout */}
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-8">
+          {/* Heading Section - Full width on mobile, 30% on desktop */}
+          <div className="lg:w-[30%] lg:flex-shrink-0">
+            <h2 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
               Learn essential career & life skills
             </h2>
-            <p className="mt-4 text-lg text-slate-600">
+            <p className="mt-3 text-base text-slate-600 sm:mt-4 sm:text-lg">
               Explore powerful tools designed to automate work, manage data, and
               leverage AI for smarter decisions.
             </p>
-            
-            {/* Navigation Buttons */}
-            <div className="mt-6 flex gap-3">
+
+            {/* Results Count */}
+            <p className="mt-3 text-xs text-slate-500 sm:mt-4 sm:text-sm">
+              Showing {filteredCourses.length} courses
+              {selectedCategory !== "All" && ` in ${selectedCategory}`}
+            </p>
+
+            {/* Navigation Buttons - Hidden on mobile, visible on tablet+ */}
+            <div className="mt-4 hidden gap-3 sm:mt-6 md:flex">
               <button
                 onClick={() => scroll("left")}
                 className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition-all hover:border-slate-900 hover:bg-slate-50"
@@ -74,54 +108,24 @@ export default function CategorySection() {
             </div>
           </div>
 
-          {/* Cards Section - 70% with Horizontal Scroll */}
-          <div className="w-[70%] overflow-hidden">
+          {/* Cards Section - Full width on mobile, 70% on desktop */}
+          <div className="w-full overflow-hidden lg:w-[70%]">
             <div
               ref={scrollContainerRef}
-              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide"
+              className="scrollbar-hide flex gap-4 overflow-x-auto pb-4 sm:gap-6"
               style={{
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
               }}
             >
-              <CategoryCard
-                title="OCR & Automation"
-                description="Convert scanned images and PDFs into structured digital data automatically."
-                image="https://www.managedoutsource.com/wp-content/uploads/2023/06/significance-and-benefits-of-ocr-in-robotic-process-automation.png"
-                videoUrl="https://v.ftcdn.net/18/98/54/87/700_F_1898548774_6XkyLSbTO0fUlCzw4AYulPLFKmoFkuId_ST.mp4"
-              />
-              <CategoryCard
-                title="Data Management"
-                description="Securely store, edit, and manage records with complete control."
-                image="https://as1.ftcdn.net/v2/jpg/02/51/20/20/1000_F_251202063_mBlwdtqj09VrD9DmxzV0u8oAsnHKOWv0.jpg"
-              />
-              <CategoryCard
-                title="AI Powered Tools"
-                description="Extract, validate, and analyze data using advanced AI models."
-                image="https://www.channelpronetwork.com/wp-content/uploads/2024/12/AI-powered-tools_DALL-E.jpg"
-              />
-              <CategoryCard
-                title="OCR & Automation"
-                description="Convert scanned images and PDFs into structured digital data automatically."
-                image="https://www.managedoutsource.com/wp-content/uploads/2023/06/significance-and-benefits-of-ocr-in-robotic-process-automation.png"
-                videoUrl="https://v.ftcdn.net/18/98/54/87/700_F_1898548774_6XkyLSbTO0fUlCzw4AYulPLFKmoFkuId_ST.mp4"
-              />
-              <CategoryCard
-                title="Data Management"
-                description="Securely store, edit, and manage records with complete control."
-                image="https://as1.ftcdn.net/v2/jpg/02/51/20/20/1000_F_251202063_mBlwdtqj09VrD9DmxzV0u8oAsnHKOWv0.jpg"
-              />
-              <CategoryCard
-                title="AI Powered Tools"
-                description="Extract, validate, and analyze data using advanced AI models."
-                image="https://www.channelpronetwork.com/wp-content/uploads/2024/12/AI-powered-tools_DALL-E.jpg"
-              />
+              {filteredCourses.map((course) => (
+                <CategoryCard key={course.id} course={course} />
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hide scrollbar CSS */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
